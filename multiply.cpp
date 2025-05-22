@@ -8,6 +8,7 @@
 
 #define DISTANCE 10000.0
 #define MAX_SIZE 300
+#define NUM_FILES_PER_SIZE 10
 
 using namespace std;
 using namespace std::chrono;
@@ -62,8 +63,6 @@ void write_matrix(const string& filename, const vector<vector<double>>& matrix) 
 int main() {
     setlocale(LC_ALL, "");
 
-    const int numPairs = 10;
-
     ofstream timingFile("timing_results.txt");
     timingFile << "Size\tMean time (sec)\n";
 
@@ -73,7 +72,7 @@ int main() {
 
         cout << "Processing matrices size: " << size << "x" << size << "...\n";
 
-        for (int i = 1; i <= numPairs; ++i) {
+        for (int i = 1; i <= NUM_FILES_PER_SIZE; ++i) {
             string fileA = "input\\MatrixA(" + to_string(size) + ")_" + to_string(i) + ".txt";
             string fileB = "input\\MatrixB(" + to_string(size) + ")_" + to_string(i) + ".txt";
             string fileResult = "input\\Result(" + to_string(size) + ")_" + to_string(i) + ".txt";
@@ -92,12 +91,12 @@ int main() {
             write_matrix(fileResult, result);
         }
 
-        double averageTime = totalTime / numPairs;
+        double averageTime = totalTime / NUM_FILES_PER_SIZE;
         timingFile << size << "x" << size << "\t" << fixed << setprecision(6) << averageTime << "\n";
     }
 
     timingFile.close();
-    cout << "\nDone. Execution time saved as timing_results.txt\n";
+    cout << "\nDone. Execution time stats saved as timing_results.txt\n";
 
     return 0;
 }
