@@ -6,7 +6,7 @@ import re
 INPUT_DIR = "input"
 LOG_FILE = "check.log"
 NUM_FILES_PER_SIZE = 10
-MAX_SIZE = 300
+MAX_SIZE = 500
 SIZE_INCREMENT = 50
 
 def read_matrix(filename):

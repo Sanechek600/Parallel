@@ -7,7 +7,7 @@
 #include <string>
 
 #define DISTANCE 10000.0
-#define MAX_SIZE 300
+#define MAX_SIZE 500
 #define NUM_FILES_PER_SIZE 10
 
 using namespace std;
