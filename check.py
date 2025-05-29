@@ -51,27 +51,38 @@ def verify_multiplication(size, log_file=None):
 
 
 def parse_timing_results(filename):
+    sizes = []
     times = []
     with open(filename, 'r', encoding='cp1251') as f:
         lines = f.readlines()[1:]
         for line in lines:
             match = re.match(r"(\d+x\d+)\s+([0-9.]+)", line.strip())
             if match:
-                time = match.groups()[1]
+                size, time = match.groups()
+                sizes.append(size)
                 times.append(float(time))
-    return times
+    return sizes, times
 
 
-def plot_timing(sizes, times):
-    plt.figure(figsize=(8, 5))
-    plt.plot(sizes, times, marker='o', color='blue')
-    plt.title("Operation time to matrix size relation")
+def plot_multiple_timings(files_labels_colors):
+    plt.figure(figsize=(10, 6))
+    
+    for filename, label, color in files_labels_colors:
+        if not os.path.exists(filename):
+            print(f"[Warning] {filename} not found and will be skipped.")
+            continue
+        sizes, times = parse_timing_results(filename)
+        numeric_sizes = [int(s.split('x')[0]) for s in sizes]
+        plt.plot(numeric_sizes, times, marker='o', label=label, color=color)
+
+    plt.title("Multiplication time comparison")
     plt.xlabel("Matrix size (N x N)")
     plt.ylabel("Mean time (sec)")
     plt.grid(True)
+    plt.legend()
     plt.tight_layout()
 
-    output_path = os.path.join("timing_plot.png")
+    output_path = os.path.join("timing_plot_comparison.png")
     plt.savefig(output_path, dpi=300)
     print(f"Graph saved as: {output_path}")
 
@@ -79,13 +90,6 @@ def plot_timing(sizes, times):
 
 
 def main():
-    timing_file = "timing_results.txt"
-
-    if not os.path.exists(timing_file):
-        print(f"{timing_file}: file not found.")
-        return
-
-    times = parse_timing_results(timing_file)
     sizes = [i*SIZE_INCREMENT for i in range(1, MAX_SIZE//SIZE_INCREMENT + 1)]
 
     print("*** Checking multiplication results ***")
@@ -97,7 +101,12 @@ def main():
     print(f"\nCkeck results saved as: {log_path}")
 
     print("\n*** Creating time graph ***")
-    plot_timing(sizes, times)
+    files_labels_colors = [
+        ("timing_results.txt", "Базовый алгоритм", "blue"),
+        ("timing_results_4tr.txt", "4 потока", "green"),
+        ("timing_results_8tr.txt", "8 потоков", "red")
+    ]
+    plot_multiple_timings(files_labels_colors)
 
 
 if __name__ == "__main__":

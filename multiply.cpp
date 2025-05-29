@@ -9,6 +9,7 @@
 #define DISTANCE 10000.0
 #define MAX_SIZE 500
 #define NUM_FILES_PER_SIZE 10
+#define THREAD_COUNT 4
 
 using namespace std;
 using namespace std::chrono;
@@ -42,10 +43,22 @@ void generate_matrix(const string& filename, int rows, int cols) {
 
 vector<vector<double>> multiply_matrices(const vector<vector<double>>& A, const vector<vector<double>>& B, int n, int m, int p) {
     vector<vector<double>> result(n, vector<double>(p, 0.0));
-    for (int i = 0; i < n; ++i)
-        for (int j = 0; j < p; ++j)
-            for (int k = 0; k < m; ++k)
-                result[i][j] += A[i][k] * B[k][j];
+
+    #pragma omp parallel num_threads(THREAD_COUNT)
+    {
+        #pragma omp for
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < p; ++j){
+                double sum = 0.0;
+
+                #pragma omp simd reduction(+:sum)
+                for (int k = 0; k < m; ++k) {
+                    sum += A[i][k] * B[k][j];
+                }
+
+                result[i][j] = sum;
+            }
+    }
     return result;
 }
 
@@ -63,7 +76,7 @@ void write_matrix(const string& filename, const vector<vector<double>>& matrix) 
 int main() {
     setlocale(LC_ALL, "");
 
-    ofstream timingFile("timing_results.txt");
+    ofstream timingFile("timing_results_4tr.txt");
     timingFile << "Size\tMean time (sec)\n";
 
     for (int size = 50; size <= MAX_SIZE; size += 50) {
