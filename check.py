@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-INPUT_DIR = "input"
+INPUT_DIR = ""
 LOG_FILE = "check.log"
 NUM_FILES_PER_SIZE = 10
 MAX_SIZE = 500
@@ -64,7 +64,7 @@ def parse_timing_results(filename):
     return sizes, times
 
 
-def plot_multiple_timings(files_labels_colors):
+def plot_multiple_timings(files_labels_colors, out_filename):
     plt.figure(figsize=(10, 6))
     
     for filename, label, color in files_labels_colors:
@@ -82,12 +82,11 @@ def plot_multiple_timings(files_labels_colors):
     plt.legend()
     plt.tight_layout()
 
-    output_path = os.path.join("timing_plot_comparison.png")
+    output_path = os.path.join(out_filename)
     plt.savefig(output_path, dpi=300)
     print(f"Graph saved as: {output_path}")
 
     plt.show()
-
 
 def main():
     sizes = [i*SIZE_INCREMENT for i in range(1, MAX_SIZE//SIZE_INCREMENT + 1)]
@@ -102,11 +101,18 @@ def main():
 
     print("\n*** Creating time graph ***")
     files_labels_colors = [
-        ("timing_results.txt", "Базовый алгоритм", "blue"),
-        ("timing_results_4tr.txt", "4 потока", "green"),
-        ("timing_results_8tr.txt", "8 потоков", "red")
+        ("timing_results.txt", "Base algorithm", "blue"),
+        ("timing_results4.txt", "4 processes", "green"),
+        ("timing_results12.txt", "12 processes", "red")
     ]
-    plot_multiple_timings(files_labels_colors)
+    plot_multiple_timings(files_labels_colors, "timing_plot_comparison.png")
+
+    files_labels_colors = [
+        ("1K.txt", "Base algorithm", "blue"),
+        ("4K.txt", "4 processes", "green"),
+        ("12K.txt", "12 processes", "red")
+    ]
+    plot_multiple_timings(files_labels_colors, "korolev_comparison.png")
 
 
 if __name__ == "__main__":
